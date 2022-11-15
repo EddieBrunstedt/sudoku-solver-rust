@@ -2,7 +2,18 @@ pub mod build_sudoku_grid {
     use crate::types::{Cell, Errors, SudokuGrid};
 
     pub fn create_grid_from_string(string: String) -> Result<SudokuGrid, Errors> {
-        let validated_input = validate_string_length(trim_string(string))?;
+        let trimmed_string = trim_string(string);
+
+        if trimmed_string.len() != 81 {
+            return Err(Errors::InvalidStringLength);
+        };
+
+        let vector_grid = build_vector_grid(trimmed_string);
+
+        return Ok(vector_grid);
+    }
+
+    fn build_vector_grid(string: String) -> SudokuGrid {
         let mut result: SudokuGrid = vec![];
 
         for iteration in 0..9 {
@@ -11,7 +22,7 @@ pub mod build_sudoku_grid {
             let start_index = 9 * iteration;
             let end_index = 9 * (iteration + 1);
 
-            let slice = &validated_input[start_index..end_index];
+            let slice = &string[start_index..end_index];
 
             for c in slice.chars() {
                 let value_from_input: bool;
@@ -34,15 +45,7 @@ pub mod build_sudoku_grid {
             result.push(row_vector);
         }
 
-        return Ok(result);
-    }
-
-    fn validate_string_length(string: String) -> Result<String, Errors> {
-        if string.len() != 81 {
-            return Err(Errors::InvalidStringLength);
-        };
-
-        return Ok(string);
+        return result;
     }
 
     pub fn trim_string(string: String) -> String {
