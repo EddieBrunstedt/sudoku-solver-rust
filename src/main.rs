@@ -1,16 +1,20 @@
 mod build;
 mod primitives;
 mod print;
-mod quit;
+mod solve;
+
+use build::run as build;
+use print::run as print;
+use solve::run as solve;
 
 fn main() {
-    let mocked_raw_input = String::from("830609000\n602000900\n500007001\n000000069\n390208000\n050406023\n920070500\n000005400\n010900007");
+    let mocked_raw_input = String::from("530070000\n600195000\n098000060\n800060003\n400803001\n700020006\n060000280\n000419005\n000080079");
 
-    let sudoku = build::run(mocked_raw_input);
+    let initial_sudoku = build(mocked_raw_input).expect("Error building sudoku");
 
-    if let Err(error) = &sudoku {
-        quit::exit_with_error(error);
-    }
+    print(&initial_sudoku);
 
-    print::run(&sudoku.unwrap());
+    let solved_sudoku = solve(initial_sudoku);
+
+    print(&solved_sudoku);
 }
