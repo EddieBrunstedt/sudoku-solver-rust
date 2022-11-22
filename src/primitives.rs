@@ -1,7 +1,9 @@
 use colored::{ColoredString, Colorize};
+use std::default::Default;
 
-pub type SudokuGrid = Vec<Vec<Cell>>;
+pub type SudokuGrid = [[Cell; 9]; 9];
 
+#[derive(Default, Debug)]
 pub struct Cell {
     pub value: u32,
     pub from_input: bool,
@@ -19,7 +21,7 @@ impl CreateColorizedString for Cell {
 
         match self.from_input {
             true => return self.value.to_string().bold().green(),
-            false => return self.value.to_string().bold().cyan(),
+            false => return self.value.to_string().bold().red(),
         }
     }
 }

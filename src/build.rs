@@ -13,24 +13,23 @@ pub fn run(string: String) -> Result<SudokuGrid, Errors> {
 }
 
 fn build_vector_grid(string: String) -> SudokuGrid {
-    let mut result: SudokuGrid = vec![];
+    let mut result = [(); 9].map(|_| [(); 9].map(|_| Cell::default()));
 
-    for iteration in 0..9 {
-        let mut row_vector = vec![];
+    for row_iteration in 0..9 {
+        let start_index = 9 * row_iteration;
+        let end_index = 9 * (row_iteration + 1);
+        let row_slice = &string[start_index..end_index];
 
-        let start_index = 9 * iteration;
-        let end_index = 9 * (iteration + 1);
+        let mut column_iteration = 0;
 
-        let slice = &string[start_index..end_index];
-
-        for c in slice.chars() {
+        for c in row_slice.chars() {
             let value_from_input: bool;
             let numeric_value = c.to_digit(10).unwrap();
 
             if numeric_value == 0 {
-                value_from_input = true;
-            } else {
                 value_from_input = false;
+            } else {
+                value_from_input = true;
             }
 
             let cell = Cell {
@@ -38,10 +37,10 @@ fn build_vector_grid(string: String) -> SudokuGrid {
                 from_input: value_from_input,
             };
 
-            row_vector.push(cell);
-        }
+            result[row_iteration][column_iteration] = cell;
 
-        result.push(row_vector);
+            column_iteration += 1;
+        }
     }
 
     return result;
