@@ -1,5 +1,5 @@
 * Inbox
-** [2022-11-13 Sun 13:51] Example sudoku input
+** Example sudoku input
 830609000
 602000900
 500007001
