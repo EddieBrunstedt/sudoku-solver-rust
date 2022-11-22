@@ -30,3 +30,97 @@ impl CreateColorizedString for Cell {
 pub enum Errors {
     InvalidStringLength,
 }
+
+pub struct Cursor {
+    pub col: usize,
+    pub row: usize,
+    pub current_direction: CursorDirection,
+}
+
+#[derive(Debug)]
+pub enum CursorDirection {
+    Forward,
+    Backward,
+}
+
+pub trait MoveCursor {
+    fn move_along(&mut self);
+    fn move_backward(&mut self);
+    fn move_forward(&mut self);
+}
+
+pub trait CreateCursor {
+    fn new() -> Cursor;
+}
+
+impl CreateCursor for Cursor {
+    fn new() -> Cursor {
+        return Cursor {
+            col: 0,
+            row: 0,
+            current_direction: CursorDirection::Forward,
+        };
+    }
+}
+
+impl MoveCursor for Cursor {
+    fn move_along(&mut self) {
+        match self.current_direction {
+            CursorDirection::Forward => {
+                return self.move_forward();
+            }
+            CursorDirection::Backward => {
+                return self.move_backward();
+            }
+        }
+    }
+
+    fn move_backward(&mut self) {
+        self.current_direction = CursorDirection::Backward;
+
+        if self.col == 0 {
+            self.col = 8;
+            self.row -= 1;
+        } else {
+            self.col -= 1;
+        }
+    }
+
+    fn move_forward(&mut self) {
+        self.current_direction = CursorDirection::Forward;
+
+        if self.col == 8 {
+            self.col = 0;
+            self.row += 1;
+        } else {
+            self.col += 1;
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn move_cursor() {
+        let mut cursor = Cursor::new();
+        assert_eq!((cursor.row, cursor.col), (0, 0));
+        for _ in 0..7 {
+            cursor.move_forward();
+        }
+        assert_eq!((cursor.row, cursor.col), (0, 7));
+        for _ in 0..24 {
+            cursor.move_along();
+        }
+        assert_eq!((cursor.row, cursor.col), (3, 4));
+        for _ in 0..5 {
+            cursor.move_backward();
+        }
+        assert_eq!((cursor.row, cursor.col), (2, 8));
+        for _ in 0..5 {
+            cursor.move_along();
+        }
+        assert_eq!((cursor.row, cursor.col), (2, 3));
+    }
+}

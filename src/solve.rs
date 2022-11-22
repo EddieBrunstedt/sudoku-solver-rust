@@ -1,4 +1,4 @@
-use crate::primitives::SudokuGrid;
+use crate::primitives::{CreateCursor, Cursor, MoveCursor, SudokuGrid};
 use std::collections::HashMap;
 
 pub fn run(mut sudoku: SudokuGrid) -> SudokuGrid {
@@ -20,7 +20,7 @@ pub fn run(mut sudoku: SudokuGrid) -> SudokuGrid {
                     sudoku[cursor.row][cursor.col].value += 1;
                 }
 
-                if is_conflict_at_cursor(&cursor, &sudoku) {
+                if conflict_at_cursor(&cursor, &sudoku) {
                     if sudoku[cursor.row][cursor.col].value == 9 {
                         sudoku[cursor.row][cursor.col].value = 0;
                         cursor.move_backward();
@@ -42,7 +42,7 @@ pub fn run(mut sudoku: SudokuGrid) -> SudokuGrid {
     return sudoku;
 }
 
-fn is_conflict_at_cursor(cursor: &Cursor, sudoku: &SudokuGrid) -> bool {
+fn conflict_at_cursor(cursor: &Cursor, sudoku: &SudokuGrid) -> bool {
     return has_duplicates(get_row_nums(cursor, sudoku))
         || has_duplicates(get_col_nums(cursor, sudoku))
         || has_duplicates(get_box_nums(cursor, sudoku))
@@ -109,74 +109,6 @@ fn get_box_nums(cursor: &Cursor, sudoku: &SudokuGrid) -> Vec<u32> {
     return result;
 }
 
-#[derive(Debug)]
-struct Cursor {
-    col: usize,
-    row: usize,
-    current_direction: CursorDirection,
-}
-
-#[derive(Debug)]
-enum CursorDirection {
-    Forward,
-    Backward,
-}
-
-trait MoveCursor {
-    fn move_along(&mut self);
-    fn move_backward(&mut self);
-    fn move_forward(&mut self);
-}
-
-trait CreateCursor {
-    fn new() -> Cursor;
-}
-
-impl CreateCursor for Cursor {
-    fn new() -> Cursor {
-        return Cursor {
-            col: 0,
-            row: 0,
-            current_direction: CursorDirection::Forward,
-        };
-    }
-}
-
-impl MoveCursor for Cursor {
-    fn move_along(&mut self) {
-        match self.current_direction {
-            CursorDirection::Forward => {
-                return self.move_forward();
-            }
-            CursorDirection::Backward => {
-                return self.move_backward();
-            }
-        }
-    }
-
-    fn move_backward(&mut self) {
-        self.current_direction = CursorDirection::Backward;
-
-        if self.col == 0 {
-            self.col = 8;
-            self.row -= 1;
-        } else {
-            self.col -= 1;
-        }
-    }
-
-    fn move_forward(&mut self) {
-        self.current_direction = CursorDirection::Forward;
-
-        if self.col == 8 {
-            self.col = 0;
-            self.row += 1;
-        } else {
-            self.col += 1;
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -188,27 +120,5 @@ mod tests {
         assert_eq!(has_duplicates(vec![1, 1, 3, 4]), true);
         assert_eq!(has_duplicates(vec![]), false);
         assert_eq!(has_duplicates(vec![1, 1, 1, 1, 1]), true);
-    }
-
-    #[test]
-    fn move_cursor() {
-        let mut cursor = Cursor::new();
-        assert_eq!((cursor.row, cursor.col), (0, 0));
-        for _ in 0..7 {
-            cursor.move_forward();
-        }
-        assert_eq!((cursor.row, cursor.col), (0, 7));
-        for _ in 0..24 {
-            cursor.move_along();
-        }
-        assert_eq!((cursor.row, cursor.col), (3, 4));
-        for _ in 0..5 {
-            cursor.move_backward();
-        }
-        assert_eq!((cursor.row, cursor.col), (2, 8));
-        for _ in 0..5 {
-            cursor.move_along();
-        }
-        assert_eq!((cursor.row, cursor.col), (2, 3));
     }
 }
