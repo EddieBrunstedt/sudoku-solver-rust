@@ -9,12 +9,8 @@ pub struct Cell {
     pub from_input: bool,
 }
 
-pub trait CreateColorizedString {
-    fn create_colorized_string(&self) -> ColoredString;
-}
-
-impl CreateColorizedString for Cell {
-    fn create_colorized_string(&self) -> ColoredString {
+impl Cell {
+    pub fn create_colorized_string(&self) -> ColoredString {
         if self.value == 0 {
             return " ".to_string().bold();
         };
@@ -43,28 +39,16 @@ pub enum CursorDirection {
     Backward,
 }
 
-pub trait MoveCursor {
-    fn move_along(&mut self);
-    fn move_backward(&mut self);
-    fn move_forward(&mut self);
-}
-
-pub trait CreateCursor {
-    fn new() -> Cursor;
-}
-
-impl CreateCursor for Cursor {
-    fn new() -> Cursor {
+impl Cursor {
+    pub fn new() -> Cursor {
         return Cursor {
             col: 0,
             row: 0,
             current_direction: CursorDirection::Forward,
         };
     }
-}
 
-impl MoveCursor for Cursor {
-    fn move_along(&mut self) {
+    pub fn move_along(&mut self) {
         match self.current_direction {
             CursorDirection::Forward => {
                 return self.move_forward();
@@ -75,7 +59,7 @@ impl MoveCursor for Cursor {
         }
     }
 
-    fn move_backward(&mut self) {
+    pub fn move_backward(&mut self) {
         self.current_direction = CursorDirection::Backward;
 
         if self.col == 0 {
@@ -86,7 +70,7 @@ impl MoveCursor for Cursor {
         }
     }
 
-    fn move_forward(&mut self) {
+    pub fn move_forward(&mut self) {
         self.current_direction = CursorDirection::Forward;
 
         if self.col == 8 {

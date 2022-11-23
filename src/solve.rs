@@ -1,4 +1,4 @@
-use crate::primitives::{CreateCursor, Cursor, MoveCursor, SudokuGrid};
+use crate::primitives::{Cursor, SudokuGrid};
 use std::collections::HashMap;
 
 pub fn run(mut sudoku: SudokuGrid) -> SudokuGrid {

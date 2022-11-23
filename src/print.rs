@@ -1,4 +1,3 @@
-use crate::primitives::CreateColorizedString;
 use crate::primitives::SudokuGrid;
 use colored::Colorize;
 
