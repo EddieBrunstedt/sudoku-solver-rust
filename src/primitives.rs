@@ -62,23 +62,21 @@ impl Cursor {
     pub fn move_backward(&mut self) {
         self.current_direction = CursorDirection::Backward;
 
-        if self.col == 0 {
-            self.col = 8;
-            self.row -= 1;
+        (self.row, self.col) = if self.col == 0 {
+            (self.row - 1, 8)
         } else {
-            self.col -= 1;
-        }
+            (self.row, self.col - 1)
+        };
     }
 
     pub fn move_forward(&mut self) {
         self.current_direction = CursorDirection::Forward;
 
-        if self.col == 8 {
-            self.col = 0;
-            self.row += 1;
+        (self.row, self.col) = if self.col == 8 {
+            (self.row + 1, 0)
         } else {
-            self.col += 1;
-        }
+            (self.row, self.col + 1)
+        };
     }
 }
 
