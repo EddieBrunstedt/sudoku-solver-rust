@@ -1,30 +1,70 @@
+mod args;
 mod build;
 mod primitives;
 mod print;
 mod solve;
 
+use std::{
+    io::{stdin, stdout, Read, Write},
+    process::exit,
+};
+
+use args::SudokuArgs;
 use build::run as build;
+use clap::Parser;
+use colored::Colorize;
+use inquire::Confirm;
 use print::run as print;
 use solve::run as solve;
 
 fn main() {
-    // Normal
-    let mocked_raw_input = String::from("530070000\n600195000\n098000060\n800060003\n400803001\n700020006\n060000280\n000419005\n000080079");
+    let cli = SudokuArgs::parse();
 
-    // Initial conflict
-    // let mocked_raw_input = String::from("538070000\n600195000\n098000060\n800060003\n400803001\n700020006\n060000280\n000419005\n000080079");
+    let (input, empty_input) = if let Some(name) = cli.sudoku_input {
+        (name, false)
+    } else {
+        (String::from("000000000\n000000000\n000000000\n000000000\n000000000\n000000000\n000000000\n000000000\n000000000"), true)
+    };
 
-    // Wrong input
-    // let mocked_raw_input = String::from("58070000\n600195000\n098000060\n800060003\n400803001\n700020006\n060000280\n000419005\n000080079");
+    if empty_input && !cli.no_confirm {
+        let ans = Confirm::new("No cell values provided.\nSolve an empty Sudoku?")
+            .with_default(true)
+            .prompt();
 
-    // Unsolvable
-    // let mocked_raw_input = String::from("530070000\n600195000\n098000060\n800060003\n400803001\n700020006\n060000280\n000419005\n000080479");
+        match ans {
+            Ok(true) => (),
+            Ok(false) => exit_with_message("Exiting application"),
+            Err(_) => println!("Error with questionnaire, try again later"),
+        }
+    }
 
-    let initial_sudoku = build(mocked_raw_input).expect("Building sudoku");
+    let initial_sudoku = build(input).expect("Building sudoku");
+
+    println!("{}", "--------------- INPUT ---------------".yellow());
 
     print(&initial_sudoku);
 
+    if !cli.no_confirm {
+        press_btn_to_continue();
+    }
+
     let solved_sudoku = solve(initial_sudoku).expect("Solving sudoku");
 
+    println!("{}", "-------------- SOLVED ---------------".yellow());
+
     print(&solved_sudoku);
+}
+
+fn exit_with_message(message: &str) {
+    println!("{}", message);
+    exit(0)
+}
+
+fn press_btn_to_continue() {
+    let mut stdout = stdout();
+    stdout
+        .write(b"Press Enter to continue solving this sudoku...")
+        .unwrap();
+    stdout.flush().unwrap();
+    stdin().read(&mut [0]).unwrap();
 }
