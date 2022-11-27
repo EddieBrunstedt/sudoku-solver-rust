@@ -23,7 +23,7 @@ fn main() {
     let (input, empty_input) = if let Some(name) = cli.sudoku_input {
         (name, false)
     } else {
-        (String::from("000000000\n000000000\n000000000\n000000000\n000000000\n000000000\n000000000\n000000000\n000000000"), true)
+        (create_empty_sudoku_input(), true)
     };
 
     if empty_input && !cli.no_confirm {
@@ -53,6 +53,14 @@ fn main() {
     println!("{}", "-------------- SOLVED ---------------".yellow());
 
     print(&solved_sudoku);
+}
+
+fn create_empty_sudoku_input() -> String {
+    let mut result = String::from("");
+    for _ in 0..81 {
+        result.push('0');
+    }
+    return result;
 }
 
 fn exit_with_message(message: &str) {
