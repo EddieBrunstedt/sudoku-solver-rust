@@ -1,14 +1,24 @@
-use crate::primitives::{Cursor, SudokuGrid};
+use crate::primitives::{Cursor, CursorDirection, SolveErrors, SudokuGrid};
 use std::collections::HashMap;
 
-pub fn run(mut sudoku: SudokuGrid) -> SudokuGrid {
+pub fn run(mut sudoku: SudokuGrid) -> Result<SudokuGrid, SolveErrors> {
     let mut cursor = Cursor::new();
+
+    check_for_initial_conflict(&sudoku)?;
 
     'outer: loop {
         if sudoku[cursor.row][cursor.col].from_input {
             if cursor.col == 8 && cursor.row == 8 {
                 break 'outer;
             };
+
+            if cursor.row == 0
+                && cursor.col == 0
+                && matches!(cursor.current_direction, CursorDirection::Backward)
+            {
+                return Err(SolveErrors::Unsolvable);
+            }
+
             cursor.move_along();
         } else {
             'inner: loop {
@@ -39,7 +49,25 @@ pub fn run(mut sudoku: SudokuGrid) -> SudokuGrid {
         }
     }
 
-    return sudoku;
+    return Ok(sudoku);
+}
+
+fn check_for_initial_conflict(sudoku: &SudokuGrid) -> Result<(), SolveErrors> {
+    let mut cursor = Cursor::new();
+
+    for _ in 0..81 {
+        if sudoku[cursor.row][cursor.col].from_input == true {
+            if conflict_at_cursor(&cursor, sudoku) == true {
+                return Err(SolveErrors::InitialConflict);
+            }
+            cursor.move_forward();
+        } else {
+            cursor.move_forward();
+            continue;
+        }
+    }
+
+    return Ok(());
 }
 
 fn conflict_at_cursor(cursor: &Cursor, sudoku: &SudokuGrid) -> bool {

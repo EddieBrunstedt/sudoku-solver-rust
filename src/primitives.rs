@@ -16,8 +16,8 @@ impl Cell {
         };
 
         match self.from_input {
-            true => return self.value.to_string().bold().green(),
-            false => return self.value.to_string().bold().red(),
+            true => return self.value.to_string().bold().magenta(),
+            false => return self.value.to_string().bold().green(),
         }
     }
 }
@@ -25,6 +25,12 @@ impl Cell {
 #[derive(Debug)]
 pub enum Errors {
     InvalidStringLength,
+}
+
+#[derive(Debug)]
+pub enum SolveErrors {
+    InitialConflict,
+    Unsolvable,
 }
 
 pub struct Cursor {
