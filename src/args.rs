@@ -20,7 +20,7 @@ in the file as they will be stripped away automatically.";
                 .args(["input_from_stdin", "input_from_file"]))
 )]
 pub struct SudokuArgs {
-    /// Each cell's value from left to right of the Sudoku where 0 represents an empty cell
+    /// Each cell's value from left to right
     #[arg(short = 's', long, value_name = "values")]
     pub input_from_stdin: Option<String>,
 
