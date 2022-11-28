@@ -4,63 +4,58 @@ mod primitives;
 mod print;
 mod solve;
 
-use std::{
-    io::{stdin, stdout, Read, Write},
-    process::exit,
-};
-
 use args::SudokuArgs;
 use build::run as build;
 use clap::Parser;
 use colored::Colorize;
-use inquire::Confirm;
 use print::run as print;
 use solve::run as solve;
+use std::{
+    error::Error,
+    fs,
+    io::{stdin, stdout, Read, Write},
+    process::exit,
+};
 
 fn main() {
     let cli = SudokuArgs::parse();
+    let mut input: String = String::new();
 
-    let (input, empty_input) = if let Some(name) = cli.sudoku_input {
-        (name, false)
-    } else {
-        (create_empty_sudoku_input(), true)
+    if let Some(file_path) = cli.input_from_file {
+        println!("Looking for Sudoku values in file: {}", file_path);
+        let input_from_file = get_string_from_file(&file_path);
+
+        if let Err(err) = input_from_file {
+            exit_with_message(&*err.to_string());
+        } else {
+            input = input_from_file.unwrap();
+        }
     };
 
-    if empty_input && !cli.no_confirm {
-        let ans = Confirm::new("No cell values provided.\nSolve an empty Sudoku?")
-            .with_default(true)
-            .prompt();
-
-        match ans {
-            Ok(true) => (),
-            Ok(false) => exit_with_message("Exiting application"),
-            Err(_) => println!("Error with questionnaire, try again later"),
-        }
+    if let Some(stdin_string) = cli.input_from_stdin {
+        input = stdin_string;
     }
 
     let initial_sudoku = build(input).expect("Building sudoku");
 
-    println!("{}", "--------------- INPUT ---------------".yellow());
+    println!();
+    println!("{}", "You have provided these values:".yellow());
 
     print(&initial_sudoku);
 
-    if !cli.no_confirm {
-        press_btn_to_continue();
-    }
+    press_btn_to_continue();
 
     let solved_sudoku = solve(initial_sudoku).expect("Solving sudoku");
 
-    println!("{}", "-------------- SOLVED ---------------".yellow());
+    println!();
+    println!("{}", "This is the solved Sudoku".yellow());
 
     print(&solved_sudoku);
 }
 
-fn create_empty_sudoku_input() -> String {
-    let mut result = String::from("");
-    for _ in 0..81 {
-        result.push('0');
-    }
-    return result;
+fn get_string_from_file(file_path: &str) -> Result<String, Box<dyn Error>> {
+    let file_content = fs::read_to_string(file_path)?;
+    return Ok(file_content);
 }
 
 fn exit_with_message(message: &str) {
